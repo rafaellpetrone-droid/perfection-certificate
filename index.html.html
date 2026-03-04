@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfection Certificate — Information Gathering</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1c2e; --ink: #1a2a3e; --slate: #2e4057; --steel: #4a6080; --mist: #8ea8c3;
+    --silver: #c8d8e8; --fog: #e8f0f8; --paper: #f5f8fc; --white: #ffffff;
+    --gold: #c9a84c; --gold-light: #e8c96a; --red: #c0392b; --green: #1a7a4a;
+    --accent: #1d6fa4; --accent-light: #e8f4fd; --border: #d0dce8;
+    --shadow: 0 2px 12px rgba(15,28,46,0.10); --shadow-lg: 0 8px 40px rgba(15,28,46,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Source Sans 3', sans-serif; background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+  .header { background: var(--navy); color: var(--white); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-lg); }
+  .header-inner { max-width: 1100px; margin: 0 auto; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .header-brand { display: flex; align-items: center; gap: 14px; }
+  .header-icon { width: 38px; height: 38px; background: var(--gold); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; color: var(--white); }
+  .header h1 span { color: var(--gold-light); }
+  .header-subtitle { font-size: 0.75rem; color: var(--mist); font-weight: 300; letter-spacing: 0.05em; text-transform: uppercase; }
+  .progress-bar-wrap { background: rgba(255,255,255,0.08); height: 3px; }
+  .progress-bar-fill { height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); transition: width 0.4s ease; width: 0%; }
+  .main-wrap { max-width: 1100px; margin: 0 auto; padding: 40px 32px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 36px; align-items: start; }
+  .sidebar { position: sticky; top: 90px; }
+  .sidebar-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--steel); margin-bottom: 12px; padding-left: 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 6px; cursor: pointer; transition: all 0.18s; margin-bottom: 2px; color: var(--steel); font-size: 0.85rem; text-decoration: none; }
+  .nav-item:hover { background: var(--fog); color: var(--accent); }
+  .nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+  .nav-letter { width: 22px; height: 22px; border-radius: 50%; background: var(--silver); color: var(--slate); font-size: 0.72rem; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.18s; }
+  .nav-item.active .nav-letter { background: var(--accent); color: white; }
+  .form-panel { background: var(--white); border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; }
+  .intro-banner { background: linear-gradient(135deg, var(--navy) 0%, var(--slate) 100%); color: white; padding: 36px 40px; border-bottom: 3px solid var(--gold); }
+  .intro-banner h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 10px; color: white; }
+  .intro-banner p { color: var(--silver); font-size: 0.92rem; max-width: 640px; line-height: 1.7; }
+  .intro-meta { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .meta-chip { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 14px; font-size: 0.78rem; color: var(--silver); display: flex; align-items: center; gap: 6px; }
+  .date-row { display: flex; align-items: center; gap: 16px; padding: 20px 40px; background: var(--fog); border-bottom: 1px solid var(--border); }
+  .date-row label { font-weight: 600; font-size: 0.88rem; color: var(--slate); white-space: nowrap; }
+  .date-row input[type="date"] { border: 1px solid var(--border); border-radius: 6px; padding: 7px 12px; font-family: inherit; font-size: 0.88rem; color: var(--ink); background: white; outline: none; transition: border 0.18s; }
+  .date-row input[type="date"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+  .section { padding: 36px 40px; border-bottom: 1px solid var(--fog); }
+  .section:last-child { border-bottom: none; }
+  .section-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
+  .section-badge { background: var(--navy); color: var(--gold); font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--navy); line-height: 1.3; }
+  .section-desc { font-size: 0.82rem; color: var(--steel); margin-top: 3px; line-height: 1.5; }
+  .field-grid { display: grid; gap: 18px; }
+  .field-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .field-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field.span-2 { grid-column: span 2; }
+  .field.span-3 { grid-column: span 3; }
+  .field.span-4 { grid-column: span 4; }
+  label.field-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate); }
+  .field-hint { font-size: 0.75rem; color: var(--mist); margin-top: -2px; font-style: italic; }
+  input[type="text"], input[type="email"], input[type="tel"], input[type="number"], select, textarea { font-family: inherit; font-size: 0.9rem; color: var(--ink); background: var(--paper); border: 1px solid var(--border); border-radius: 7px; padding: 9px 13px; outline: none; transition: all 0.18s; width: 100%; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px var(--accent-light); }
+  textarea { min-height: 80px; resize: vertical; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238ea8c3' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; }
+  .repeatable-section { display: flex; flex-direction: column; gap: 12px; }
+  .row-card { background: var(--paper); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; position: relative; }
+  .row-card .row-num { position: absolute; top: 10px; left: 12px; font-size: 0.7rem; font-weight: 600; color: var(--mist); font-family: 'Source Code Pro', monospace; }
+  .row-card .field-grid { padding-top: 8px; }
+  .btn-add-row { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; background: white; border: 1.5px dashed var(--border); border-radius: 8px; color: var(--accent); font-size: 0.85rem; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.18s; margin-top: 4px; }
+  .btn-add-row:hover { border-color: var(--accent); background: var(--accent-light); }
+  .btn-remove-row { position: absolute; top: 10px; right: 12px; background: none; border: none; color: var(--mist); cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; font-family: inherit; }
+  .btn-remove-row:hover { color: var(--red); background: #fdecea; }
+  .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .check-chip { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; cursor: pointer; font-size: 0.82rem; color: var(--slate); background: white; transition: all 0.15s; user-select: none; }
+  .check-chip input[type="checkbox"] { margin: 0; accent-color: var(--accent); }
+  .check-chip:has(input:checked) { background: var(--accent-light); border-color: var(--accent); color: var(--accent); font-weight: 500; }
+  .radio-yn { display: flex; gap: 10px; margin-top: 4px; }
+  .radio-yn label { display: flex; align-items: center; gap: 6px; padding: 6px 16px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: 500; background: white; transition: all 0.15s; }
+  .radio-yn label input { margin: 0; accent-color: var(--accent); }
+  .radio-yn label:has(input:checked) { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+  .misc-table { width: 100%; border-collapse: collapse; }
+  .misc-table th { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--steel); padding: 10px 12px; background: var(--fog); border: 1px solid var(--border); text-align: left; }
+  .misc-table td { padding: 12px; border: 1px solid var(--border); vertical-align: top; }
+  .misc-table tr:nth-child(even) td { background: var(--paper); }
+  .misc-table .question-cell { font-size: 0.88rem; color: var(--ink); max-width: 300px; line-height: 1.5; }
+  .sig-section { background: linear-gradient(135deg, #f5f8fc, #e8f0f8); border-top: 3px solid var(--gold); }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .submit-area { padding: 32px 40px; background: var(--navy); display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .submit-info { color: var(--silver); font-size: 0.85rem; max-width: 500px; line-height: 1.6; }
+  .submit-info strong { color: var(--gold-light); }
+  .btn-submit { background: var(--gold); color: var(--navy); border: none; border-radius: 8px; padding: 14px 36px; font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; cursor: pointer; letter-spacing: 0.02em; transition: all 0.2s; white-space: nowrap; }
+  .btn-submit:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(201,168,76,0.4); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,20,35,0.75); z-index: 1000; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 14px; width: 100%; max-width: 820px; box-shadow: 0 24px 80px rgba(0,0,0,0.4); overflow: hidden; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .modal-header { background: var(--navy); color: white; padding: 28px 36px; display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: white; }
+  .modal-header p { color: var(--mist); font-size: 0.85rem; margin-top: 4px; }
+  .modal-close { background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: rgba(255,255,255,0.2); }
+  .modal-body { padding: 36px; max-height: 70vh; overflow-y: auto; }
+  .summary-section { margin-bottom: 28px; }
+  .summary-section-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--navy); border-bottom: 2px solid var(--gold); padding-bottom: 6px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .summary-badge { background: var(--navy); color: var(--gold); font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+  .summary-item { display: flex; gap: 12px; font-size: 0.88rem; margin-bottom: 8px; line-height: 1.5; }
+  .summary-key { color: var(--steel); font-weight: 500; min-width: 200px; flex-shrink: 0; }
+  .summary-val { color: var(--ink); word-break: break-word; }
+  .summary-row-block { background: var(--paper); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; margin-bottom: 8px; font-size: 0.88rem; }
+  .modal-footer { padding: 20px 36px; background: var(--fog); border-top: 1px solid var(--border); display: flex; gap: 12px; justify-content: flex-end; align-items: center; }
+  .btn-secondary { padding: 10px 24px; background: white; border: 1.5px solid var(--border); border-radius: 7px; font-family: inherit; font-size: 0.9rem; cursor: pointer; color: var(--slate); transition: all 0.15s; }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { padding: 10px 28px; background: var(--navy); border: none; border-radius: 7px; font-family: inherit; font-size: 0.9rem; cursor: pointer; color: white; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .btn-primary:hover { background: var(--slate); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .submit-status { font-size: 0.85rem; color: var(--steel); }
+  .section-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 0 40px; }
+
+  /* Config banner */
+  .config-banner { background: #fff8e8; border: 1.5px solid var(--gold); border-radius: 8px; padding: 14px 20px; margin: 20px 40px 0; display: flex; align-items: flex-start; gap: 12px; font-size: 0.85rem; color: var(--ink); }
+  .config-banner .config-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .config-banner code { background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 3px; font-family: 'Source Code Pro', monospace; font-size: 0.82rem; }
+
+  @media (max-width: 800px) {
+    .main-wrap { grid-template-columns: 1fr; padding: 20px 16px 60px; }
+    .sidebar { display: none; }
+    .section { padding: 24px 20px; }
+    .field-grid.cols-2, .field-grid.cols-3, .field-grid.cols-4 { grid-template-columns: 1fr; }
+    .field.span-2, .field.span-3, .field.span-4 { grid-column: auto; }
+    .sig-grid { grid-template-columns: 1fr; }
+    .submit-area { flex-direction: column; align-items: flex-start; }
+    .config-banner { margin: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     ⚙️  CONFIGURATION — paste your Apps Script URL below
+     ══════════════════════════════════════════════════════ -->
+<script>
+  const APPS_SCRIPT_URL = 'AKfycbxMNmV82QQlLiclHIUU-zzcwHpQ0oIpaOkFqhx17OYlb6-tmVnErjYsr5k-k4X5IFaT
+';
+  // Replace the string above with your deployed Web App URL from Google Apps Script.
+  // It will look like: https://script.google.com/macros/s/ABC.../exec
+</script>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-icon">⚖</div>
+      <div>
+        <h1><span>Perfection</span> Certificate</h1>
+        <div class="header-subtitle">Commercial Loan Information Gathering</div>
+      </div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
+</header>
+
+<div class="main-wrap">
+  <nav class="sidebar">
+    <div class="sidebar-label">Sections</div>
+    <a class="nav-item active" onclick="scrollTo('sec-a')" href="#"><span class="nav-letter">A</span>Grantor Identity</a>
+    <a class="nav-item" onclick="scrollTo('sec-b')" href="#"><span class="nav-letter">B</span>Locations</a>
+    <a class="nav-item" onclick="scrollTo('sec-c')" href="#"><span class="nav-letter">C</span>Officers</a>
+    <a class="nav-item" onclick="scrollTo('sec-d')" href="#"><span class="nav-letter">D</span>Third Parties</a>
+    <a class="nav-item" onclick="scrollTo('sec-e')" href="#"><span class="nav-letter">E</span>Certificate of Title</a>
+    <a class="nav-item" onclick="scrollTo('sec-f')" href="#"><span class="nav-letter">F</span>Accounts</a>
+    <a class="nav-item" onclick="scrollTo('sec-g')" href="#"><span class="nav-letter">G</span>Equity Interests</a>
+    <a class="nav-item" onclick="scrollTo('sec-h')" href="#"><span class="nav-letter">H</span>Other Investments</a>
+    <a class="nav-item" onclick="scrollTo('sec-i')" href="#"><span class="nav-letter">I</span>Intellectual Property</a>
+    <a class="nav-item" onclick="scrollTo('sec-j')" href="#"><span class="nav-letter">J</span>Licenses</a>
+    <a class="nav-item" onclick="scrollTo('sec-k')" href="#"><span class="nav-letter">K</span>Indebtedness</a>
+    <a class="nav-item" onclick="scrollTo('sec-l')" href="#"><span class="nav-letter">L</span>Miscellaneous</a>
+    <a class="nav-item" onclick="scrollTo('sec-sig')" href="#"><span class="nav-letter">✦</span>Execution</a>
+  </nav>
+
+  <div class="form-panel">
+
+    <!-- Config warning if URL not set -->
+    <div class="config-banner" id="configBanner" style="display:none;">
+      <div class="config-icon">⚠️</div>
+      <div><strong>Setup required:</strong> Open this HTML file in a text editor and replace <code>YOUR_APPS_SCRIPT_URL_HERE</code> with your Google Apps Script deployment URL. See the setup instructions document for details.</div>
+    </div>
+
+    <form id="perfectionForm" onsubmit="return false;">
+      <div class="intro-banner">
+        <h2>Perfection Certificate</h2>
+        <p>Please complete all applicable sections of this certificate. The undersigned Grantor hereby certifies the information set forth below with reference to the Security Agreement between Grantor, the Secured Party, and certain other parties thereto.</p>
+        <div class="intro-meta">
+          <div class="meta-chip">📋 12 sections to complete</div>
+          <div class="meta-chip">💼 Commercial / Business loan</div>
+          <div class="meta-chip">🔒 Submission saved to Google Sheets</div>
+        </div>
+      </div>
+
+      <div class="date-row">
+        <label for="certDate">Certificate Date:</label>
+        <input type="date" id="certDate" name="certDate">
+        <span style="font-size:0.82rem;color:var(--steel);margin-left:8px;">Leave blank to complete at execution</span>
+      </div>
+
+      <!-- A -->
+      <div class="section" id="sec-a">
+        <div class="section-header"><div class="section-badge">A</div><div><div class="section-title">Grantor Name &amp; Registration Information</div><div class="section-desc">Provide the exact legal name of the Grantor as indicated on its public organic record.</div></div></div>
+        <div class="field-grid cols-2">
+          <div class="field span-2"><label class="field-label">Grantor Legal Name <span style="color:var(--red)">*</span></label><div class="field-hint">Exact name as indicated on the Grantor's public organic record</div><input type="text" name="grantorName" placeholder="e.g. Acme Enterprises LLC"></div>
+          <div class="field"><label class="field-label">Jurisdiction of Organization</label><input type="text" name="jurisdictionOrg" placeholder="e.g. Delaware"></div>
+          <div class="field"><label class="field-label">Type of Organization</label><select name="orgType"><option value="">— Select —</option><option>LLC</option><option>Corporation</option><option>Limited Partnership</option><option>General Partnership</option><option>Sole Proprietorship</option><option>Trust</option><option>Non-profit / Foundation</option><option>Other</option></select></div>
+          <div class="field"><label class="field-label">Organizational ID Number</label><input type="text" name="orgIdNumber" placeholder="State registration number"></div>
+          <div class="field"><label class="field-label">Employer Identification No. (EIN)</label><input type="text" name="ein" placeholder="XX-XXXXXXX"></div>
+          <div class="field span-2"><label class="field-label">Other Names on Tax Returns (past 5 years)</label><textarea name="otherTaxNames" placeholder="List any prior or alternate names used on tax filings..."></textarea></div>
+        </div>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- B -->
+      <div class="section" id="sec-b">
+        <div class="section-header"><div class="section-badge">B</div><div><div class="section-title">Locations of Grantor &amp; Predecessors</div><div class="section-desc">All locations used or occupied during the five-year period ending on the Effective Date.</div></div></div>
+        <div class="repeatable-section" id="locations-list"></div>
+        <button type="button" class="btn-add-row" onclick="addRow('locations-list', locationRowTemplate)">＋ Add Location</button>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- C -->
+      <div class="section" id="sec-c">
+        <div class="section-header"><div class="section-badge">C</div><div><div class="section-title">Grantor's Officers</div><div class="section-desc">List all officers of the Grantor entity.</div></div></div>
+        <div class="repeatable-section" id="officers-list"></div>
+        <button type="button" class="btn-add-row" onclick="addRow('officers-list', officerRowTemplate)">＋ Add Officer</button>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- D -->
+      <div class="section" id="sec-d">
+        <div class="section-header"><div class="section-badge">D</div><div><div class="section-title">Persons Other Than Grantor with an Interest in the Collateral</div><div class="section-desc">Identify third parties who have, or are intended to have, any interest in collateral.</div></div></div>
+        <div class="repeatable-section" id="thirdparty-list"></div>
+        <button type="button" class="btn-add-row" onclick="addRow('thirdparty-list', thirdPartyRowTemplate)">＋ Add Party</button>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- E -->
+      <div class="section" id="sec-e">
+        <div class="section-header"><div class="section-badge">E</div><div><div class="section-title">Property Subject to a Certificate of Title</div><div class="section-desc">List any property (automobiles, vessels, aircraft) subject to a certificate of title.</div></div></div>
+        <div class="repeatable-section" id="title-list"></div>
+        <button type="button" class="btn-add-row" onclick="addRow('title-list', titleRowTemplate)">＋ Add Property</button>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- F -->
+      <div class="section" id="sec-f">
+        <div class="section-header"><div class="section-badge">F</div><div><div class="section-title">Deposit, Securities &amp; Commodity Accounts</div><div class="section-desc">List all bank, investment and commodity accounts.</div></div></div>
+        <div class="repeatable-section" id="accounts-list"></div>
+        <button type="button" class="btn-add-row" onclick="addRow('accounts-list', accountRowTemplate)">＋ Add Account</button>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- G -->
+      <div class="section" id="sec-g">
+        <div class="section-header"><div class="section-badge">G</div><div><div class="section-title">Grantor's Equity Interests</div><div class="section-desc">List equity interests held by the Grantor in other entities.</div></div></div>
+        <div class="repeatable-section" id="equity-list"></div>
+        <button type="button" class="btn-add-row" onclick="addRow('equity-list', equityRowTemplate)">＋ Add Equity Interest</button>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- H -->
+      <div class="section" id="sec-h">
+        <div class="section-header"><div class="section-badge">H</div><div><div class="section-title">Other Investments</div><div class="section-desc">List other investments not captured above.</div></div></div>
+        <div class="repeatable-section" id="investments-list"></div>
+        <button type="button" class="btn-add-row" onclick="addRow('investments-list', investmentRowTemplate)">＋ Add Investment</button>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- I -->
+      <div class="section" id="sec-i">
+        <div class="section-header"><div class="section-badge">I</div><div><div class="section-title">Intellectual Property</div><div class="section-desc">List all trademarks, patents, and copyrights owned by the Grantor.</div></div></div>
+        <div class="repeatable-section" id="ip-list"></div>
+        <button type="button" class="btn-add-row" onclick="addRow('ip-list', ipRowTemplate)">＋ Add IP Asset</button>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- J -->
+      <div class="section" id="sec-j">
+        <div class="section-header"><div class="section-badge">J</div><div><div class="section-title">Licenses</div><div class="section-desc">List all licenses to which the Grantor is a party.</div></div></div>
+        <div class="repeatable-section" id="licenses-list"></div>
+        <button type="button" class="btn-add-row" onclick="addRow('licenses-list', licenseRowTemplate)">＋ Add License</button>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- K -->
+      <div class="section" id="sec-k">
+        <div class="section-header"><div class="section-badge">K</div><div><div class="section-title">Grantor's Indebtedness &amp; Security Interests</div><div class="section-desc">List all current indebtedness of the Grantor.</div></div></div>
+        <div class="repeatable-section" id="debt-list"></div>
+        <button type="button" class="btn-add-row" onclick="addRow('debt-list', debtRowTemplate)">＋ Add Indebtedness</button>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- L -->
+      <div class="section" id="sec-l">
+        <div class="section-header"><div class="section-badge">L</div><div><div class="section-title">Miscellaneous</div><div class="section-desc">Please answer each question and provide details where applicable.</div></div></div>
+        <table class="misc-table">
+          <thead><tr><th>Question</th><th style="width:80px;text-align:center;">Yes / No</th><th>If Yes — provide details</th></tr></thead>
+          <tbody>
+            <tr><td class="question-cell">Is a Governmental Authority an account debtor of the Grantor?</td><td style="text-align:center;"><div class="radio-yn" style="justify-content:center;flex-direction:column;gap:4px;"><label><input type="radio" name="miscL1" value="yes"> Yes</label><label><input type="radio" name="miscL1" value="no"> No</label></div></td><td><textarea name="miscL1Detail" placeholder="Describe..."></textarea></td></tr>
+            <tr><td class="question-cell">Does Grantor hold any Commercial Tort Claims?</td><td style="text-align:center;"><div class="radio-yn" style="justify-content:center;flex-direction:column;gap:4px;"><label><input type="radio" name="miscL2" value="yes"> Yes</label><label><input type="radio" name="miscL2" value="no"> No</label></div></td><td><textarea name="miscL2Detail" placeholder="Describe..."></textarea></td></tr>
+            <tr><td class="question-cell">Is Grantor the beneficiary of any letter of credit?</td><td style="text-align:center;"><div class="radio-yn" style="justify-content:center;flex-direction:column;gap:4px;"><label><input type="radio" name="miscL3" value="yes"> Yes</label><label><input type="radio" name="miscL3" value="no"> No</label></div></td><td><textarea name="miscL3Detail" placeholder="Describe..."></textarea></td></tr>
+            <tr><td class="question-cell">Is Grantor a payee on, or owner of, any promissory note or other instrument?</td><td style="text-align:center;"><div class="radio-yn" style="justify-content:center;flex-direction:column;gap:4px;"><label><input type="radio" name="miscL4" value="yes"> Yes</label><label><input type="radio" name="miscL4" value="no"> No</label></div></td><td><textarea name="miscL4Detail" placeholder="Describe..."></textarea></td></tr>
+            <tr><td class="question-cell">Is Grantor party to any pending or threatened litigation?</td><td style="text-align:center;"><div class="radio-yn" style="justify-content:center;flex-direction:column;gap:4px;"><label><input type="radio" name="miscL5" value="yes"> Yes</label><label><input type="radio" name="miscL5" value="no"> No</label></div></td><td><textarea name="miscL5Detail" placeholder="Describe..."></textarea></td></tr>
+            <tr><td class="question-cell">Does Grantor own any "margin stock" as defined in Regulation U?</td><td style="text-align:center;"><div class="radio-yn" style="justify-content:center;flex-direction:column;gap:4px;"><label><input type="radio" name="miscL6" value="yes"> Yes</label><label><input type="radio" name="miscL6" value="no"> No</label></div></td><td><textarea name="miscL6Detail" placeholder="Describe..."></textarea></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="section-divider"></div>
+
+      <!-- SIG -->
+      <div class="section sig-section" id="sec-sig">
+        <div class="section-header"><div class="section-badge" style="background:var(--gold);color:var(--navy);">✦</div><div><div class="section-title">Execution by Grantor</div><div class="section-desc">IN WITNESS WHEREOF, intending to be legally bound, the undersigned Grantor has caused this Perfection Certificate to be duly executed by its authorized representative.</div></div></div>
+        <div class="sig-grid">
+          <div class="field"><label class="field-label">Grantor Entity Name</label><input type="text" name="sigGrantorName" placeholder="Official legal entity name"></div>
+          <div class="field"><label class="field-label">Date of Execution</label><input type="date" name="sigDate"></div>
+          <div class="field"><label class="field-label">Authorized Signatory — Full Name</label><input type="text" name="sigName" placeholder="Full name of authorized representative"></div>
+          <div class="field"><label class="field-label">Title / Position</label><input type="text" name="sigTitle" placeholder="e.g. Chief Executive Officer"></div>
+          <div class="field"><label class="field-label">Email Address</label><input type="email" name="sigEmail" placeholder="signatory@company.com"></div>
+          <div class="field"><label class="field-label">Phone Number</label><input type="tel" name="sigPhone" placeholder="+1 (000) 000-0000"></div>
+        </div>
+      </div>
+
+      <div class="submit-area">
+        <div class="submit-info">By clicking <strong>Review &amp; Submit</strong>, you will be shown a full summary for review. On confirmation, your responses will be saved directly to Google Sheets.</div>
+        <button type="button" class="btn-submit" onclick="showSummary()">Review &amp; Submit →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- SUMMARY MODAL -->
+<div class="modal-overlay" id="summaryModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div><h2>Summary for Review</h2><p>Please review all information before confirming submission.</p></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="summaryBody"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">← Edit Responses</button>
+      <span class="submit-status" id="submitStatus"></span>
+      <button class="btn-primary" id="confirmBtn" onclick="confirmSubmit()">✓ Confirm &amp; Send to Google Sheets</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Show config warning if URL not set ──
+window.addEventListener('DOMContentLoaded', () => {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    document.getElementById('configBanner').style.display = 'flex';
+  }
+  const lists = ['locations-list','officers-list','thirdparty-list','title-list','accounts-list','equity-list','investments-list','ip-list','licenses-list','debt-list'];
+  const templates = [locationRowTemplate,officerRowTemplate,thirdPartyRowTemplate,titleRowTemplate,accountRowTemplate,equityRowTemplate,investmentRowTemplate,ipRowTemplate,licenseRowTemplate,debtRowTemplate];
+  lists.forEach((id, i) => addRow(id, templates[i]));
+  updateProgress();
+  document.getElementById('perfectionForm').addEventListener('input', updateProgress);
+});
+
+// ── Row Templates ──
+function locationRowTemplate(i) {
+  return `<div class="row-card" id="loc-row-${i}"><span class="row-num">#${i}</span><button type="button" class="btn-remove-row" onclick="removeRow('loc-row-${i}')">✕</button>
+    <div class="field-grid cols-2" style="padding-top:12px;">
+      <div class="field"><label class="field-label">Entity Name</label><input type="text" name="loc_entity_${i}" placeholder="Grantor or predecessor name"></div>
+      <div class="field"><label class="field-label">Predecessor?</label><div class="radio-yn"><label><input type="radio" name="loc_pred_${i}" value="yes"> Yes</label><label><input type="radio" name="loc_pred_${i}" value="no" checked> No</label></div></div>
+      <div class="field"><label class="field-label">Street Address</label><input type="text" name="loc_street_${i}"></div>
+      <div class="field"><label class="field-label">County</label><input type="text" name="loc_county_${i}"></div>
+      <div class="field"><label class="field-label">State</label><input type="text" name="loc_state_${i}"></div>
+      <div class="field"><label class="field-label">Mailing Address (if different)</label><input type="text" name="loc_mailing_${i}"></div>
+      <div class="field span-2"><label class="field-label">Location Used As:</label>
+        <div class="checkbox-group">
+          <label class="check-chip"><input type="checkbox" name="loc_use_${i}_mailing"> Mailing Address</label>
+          <label class="check-chip"><input type="checkbox" name="loc_use_${i}_pob"> Place of Business</label>
+          <label class="check-chip"><input type="checkbox" name="loc_use_${i}_ceo"> Chief Executive Office</label>
+          <label class="check-chip"><input type="checkbox" name="loc_use_${i}_current"> Current Location</label>
+          <label class="check-chip"><input type="checkbox" name="loc_use_${i}_bks"> Books &amp; Records</label>
+          <label class="check-chip"><input type="checkbox" name="loc_use_${i}_inv"> Inventory / Equipment</label>
+          <label class="check-chip"><input type="checkbox" name="loc_use_${i}_fix"> Fixtures</label>
+        </div>
+      </div>
+    </div></div>`;
+}
+function officerRowTemplate(i) {
+  return `<div class="row-card" id="off-row-${i}"><span class="row-num">#${i}</span><button type="button" class="btn-remove-row" onclick="removeRow('off-row-${i}')">✕</button>
+    <div class="field-grid cols-4" style="padding-top:12px;">
+      <div class="field span-2"><label class="field-label">Officer Name</label><input type="text" name="off_name_${i}"></div>
+      <div class="field"><label class="field-label">Title</label><input type="text" name="off_title_${i}"></div>
+      <div class="field"><label class="field-label">Email</label><input type="email" name="off_email_${i}"></div>
+    </div></div>`;
+}
+function thirdPartyRowTemplate(i) {
+  return `<div class="row-card" id="tp-row-${i}"><span class="row-num">#${i}</span><button type="button" class="btn-remove-row" onclick="removeRow('tp-row-${i}')">✕</button>
+    <div class="field-grid cols-2" style="padding-top:12px;">
+      <div class="field"><label class="field-label">Name</label><input type="text" name="tp_name_${i}"></div>
+      <div class="field"><label class="field-label">Street Address</label><input type="text" name="tp_street_${i}"></div>
+      <div class="field"><label class="field-label">County</label><input type="text" name="tp_county_${i}"></div>
+      <div class="field"><label class="field-label">State</label><input type="text" name="tp_state_${i}"></div>
+      <div class="field"><label class="field-label">Role (e.g. Bailee, Lessee)</label><input type="text" name="tp_role_${i}"></div>
+      <div class="field"><label class="field-label">Has/Intended Possession?</label><div class="radio-yn"><label><input type="radio" name="tp_poss_${i}" value="yes"> Yes</label><label><input type="radio" name="tp_poss_${i}" value="no"> No</label></div></div>
+    </div></div>`;
+}
+function titleRowTemplate(i) {
+  return `<div class="row-card" id="title-row-${i}"><span class="row-num">#${i}</span><button type="button" class="btn-remove-row" onclick="removeRow('title-row-${i}')">✕</button>
+    <div class="field-grid cols-2" style="padding-top:12px;">
+      <div class="field"><label class="field-label">Property Type</label><input type="text" name="title_type_${i}" placeholder="e.g. Automobile, Vessel"></div>
+      <div class="field"><label class="field-label">Description</label><input type="text" name="title_desc_${i}"></div>
+      <div class="field"><label class="field-label">Registration / Title Number</label><input type="text" name="title_regno_${i}"></div>
+      <div class="field"><label class="field-label">State of Registration</label><input type="text" name="title_state_${i}"></div>
+    </div></div>`;
+}
+function accountRowTemplate(i) {
+  return `<div class="row-card" id="acc-row-${i}"><span class="row-num">#${i}</span><button type="button" class="btn-remove-row" onclick="removeRow('acc-row-${i}')">✕</button>
+    <div class="field-grid cols-2" style="padding-top:12px;">
+      <div class="field"><label class="field-label">Depositary Institution</label><input type="text" name="acc_inst_${i}"></div>
+      <div class="field"><label class="field-label">Account Number</label><input type="text" name="acc_num_${i}"></div>
+      <div class="field"><label class="field-label">Account Type</label><div class="checkbox-group"><label class="check-chip"><input type="checkbox" name="acc_type_${i}_dep"> Deposit</label><label class="check-chip"><input type="checkbox" name="acc_type_${i}_sec"> Securities</label><label class="check-chip"><input type="checkbox" name="acc_type_${i}_com"> Commodity</label></div></div>
+      <div class="field"><label class="field-label">Current Balance</label><input type="text" name="acc_balance_${i}"></div>
+    </div></div>`;
+}
+function equityRowTemplate(i) {
+  return `<div class="row-card" id="eq-row-${i}"><span class="row-num">#${i}</span><button type="button" class="btn-remove-row" onclick="removeRow('eq-row-${i}')">✕</button>
+    <div class="field-grid cols-4" style="padding-top:12px;">
+      <div class="field span-2"><label class="field-label">Issuer / Entity</label><input type="text" name="eq_issuer_${i}"></div>
+      <div class="field"><label class="field-label">CUSIP / Reference</label><input type="text" name="eq_cusip_${i}"></div>
+      <div class="field"><label class="field-label">No. of Shares/Interests</label><input type="text" name="eq_shares_${i}"></div>
+      <div class="field span-4"><label class="field-label">Price per Share / Unit</label><input type="text" name="eq_price_${i}"></div>
+    </div></div>`;
+}
+function investmentRowTemplate(i) {
+  return `<div class="row-card" id="inv-row-${i}"><span class="row-num">#${i}</span><button type="button" class="btn-remove-row" onclick="removeRow('inv-row-${i}')">✕</button>
+    <div class="field-grid cols-2" style="padding-top:12px;">
+      <div class="field"><label class="field-label">Issuer or Obligor</label><input type="text" name="inv_issuer_${i}"></div>
+      <div class="field"><label class="field-label">Investment Type</label><div class="checkbox-group"><label class="check-chip"><input type="checkbox" name="inv_type_${i}_eq"> Equity</label><label class="check-chip"><input type="checkbox" name="inv_type_${i}_cap"> Capital Commitment</label><label class="check-chip"><input type="checkbox" name="inv_type_${i}_debt"> Debt</label><label class="check-chip"><input type="checkbox" name="inv_type_${i}_ap"> Asset Purchase</label><label class="check-chip"><input type="checkbox" name="inv_type_${i}_sec"> Securities</label></div></div>
+      <div class="field span-2"><label class="field-label">Description</label><textarea name="inv_desc_${i}"></textarea></div>
+    </div></div>`;
+}
+function ipRowTemplate(i) {
+  return `<div class="row-card" id="ip-row-${i}"><span class="row-num">#${i}</span><button type="button" class="btn-remove-row" onclick="removeRow('ip-row-${i}')">✕</button>
+    <div class="field-grid cols-2" style="padding-top:12px;">
+      <div class="field"><label class="field-label">Title or Name</label><input type="text" name="ip_title_${i}"></div>
+      <div class="field"><label class="field-label">Registration Number</label><input type="text" name="ip_regno_${i}"></div>
+      <div class="field"><label class="field-label">IP Type</label><div class="checkbox-group"><label class="check-chip"><input type="checkbox" name="ip_type_${i}_tm"> Trademark</label><label class="check-chip"><input type="checkbox" name="ip_type_${i}_pt"> Patent</label><label class="check-chip"><input type="checkbox" name="ip_type_${i}_cp"> Copyright</label></div></div>
+      <div class="field"><label class="field-label">Description</label><input type="text" name="ip_desc_${i}"></div>
+    </div></div>`;
+}
+function licenseRowTemplate(i) {
+  return `<div class="row-card" id="lic-row-${i}"><span class="row-num">#${i}</span><button type="button" class="btn-remove-row" onclick="removeRow('lic-row-${i}')">✕</button>
+    <div class="field-grid cols-2" style="padding-top:12px;">
+      <div class="field"><label class="field-label">Counterparty</label><input type="text" name="lic_party_${i}"></div>
+      <div class="field"><label class="field-label">Grantor's Role</label><div class="radio-yn"><label><input type="radio" name="lic_role_${i}" value="licensor"> Licensor</label><label><input type="radio" name="lic_role_${i}" value="licensee"> Licensee</label></div></div>
+      <div class="field span-2"><label class="field-label">Description of Licensed Property or Rights</label><textarea name="lic_desc_${i}"></textarea></div>
+    </div></div>`;
+}
+function debtRowTemplate(i) {
+  return `<div class="row-card" id="debt-row-${i}"><span class="row-num">#${i}</span><button type="button" class="btn-remove-row" onclick="removeRow('debt-row-${i}')">✕</button>
+    <div class="field-grid cols-2" style="padding-top:12px;">
+      <div class="field"><label class="field-label">Name of Lender / Creditor</label><input type="text" name="debt_lender_${i}"></div>
+      <div class="field"><label class="field-label">Address</label><input type="text" name="debt_addr_${i}"></div>
+      <div class="field"><label class="field-label">Original Principal / Commitment Amount</label><input type="text" name="debt_orig_${i}"></div>
+      <div class="field"><label class="field-label">Current Outstanding Principal</label><input type="text" name="debt_curr_${i}"></div>
+      <div class="field"><label class="field-label">Maturity Date</label><input type="date" name="debt_mat_${i}"></div>
+      <div class="field"><label class="field-label">Obligation Secured?</label><div class="radio-yn"><label><input type="radio" name="debt_sec_${i}" value="yes"> Yes</label><label><input type="radio" name="debt_sec_${i}" value="no"> No</label></div></div>
+      <div class="field span-2"><label class="field-label">Encumbered Property</label><textarea name="debt_enc_${i}"></textarea></div>
+    </div></div>`;
+}
+
+const counters = {};
+function addRow(listId, template) {
+  counters[listId] = (counters[listId] || 0) + 1;
+  const container = document.getElementById(listId);
+  const div = document.createElement('div');
+  div.innerHTML = template(counters[listId]);
+  container.appendChild(div.firstElementChild);
+  updateProgress();
+}
+function removeRow(rowId) { document.getElementById(rowId)?.remove(); updateProgress(); }
+
+function updateProgress() {
+  const inputs = document.getElementById('perfectionForm').querySelectorAll('input[type="text"],input[type="email"],input[type="date"],input[type="tel"],select,textarea');
+  let filled = 0;
+  inputs.forEach(el => { if (el.value?.trim()) filled++; });
+  document.getElementById('progressBar').style.width = Math.min(100, Math.round(filled / Math.max(inputs.length, 1) * 100)) + '%';
+}
+
+function scrollTo(id) { document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'}); return false; }
+
+// ── Collect form data ──
+function collectFormData() {
+  const f = document.getElementById('perfectionForm');
+  const g = name => f.querySelector(`[name="${name}"]`)?.value?.trim() || '';
+  const radio = name => f.querySelector(`[name="${name}"]:checked`)?.value || '';
+
+  function collectRows(listId, fields) {
+    const rows = document.getElementById(listId)?.querySelectorAll('.row-card') || [];
+    return Array.from(rows).map(row => {
+      const n = row.id.split('-').pop();
+      const obj = {};
+      fields.forEach(fd => {
+        if (fd.type === 'checkbox') {
+          const checked = row.querySelectorAll(`[name^="${fd.namePrefix.replace('N', n)}"]:checked`);
+          obj[fd.key] = Array.from(checked).map(cb => cb.closest('label')?.textContent.trim() || cb.value).join(', ');
+        } else if (fd.type === 'radio') {
+          obj[fd.key] = row.querySelector(`[name="${fd.name.replace('N', n)}"]:checked`)?.value || '';
+        } else {
+          obj[fd.key] = row.querySelector(`[name="${fd.name.replace('N', n)}"]`)?.value?.trim() || '';
+        }
+      });
+      return obj;
+    });
+  }
+
+  return {
+    submittedAt: new Date().toISOString(),
+    certDate: g('certDate'),
+    sectionA: { grantorName: g('grantorName'), jurisdictionOrg: g('jurisdictionOrg'), orgType: g('orgType'), orgIdNumber: g('orgIdNumber'), ein: g('ein'), otherTaxNames: g('otherTaxNames') },
+    sectionB: collectRows('locations-list', [{key:'entity',name:'loc_entity_N'},{key:'predecessor',name:'loc_pred_N',type:'radio'},{key:'street',name:'loc_street_N'},{key:'county',name:'loc_county_N'},{key:'state',name:'loc_state_N'},{key:'mailing',name:'loc_mailing_N'},{key:'uses',namePrefix:'loc_use_N_',type:'checkbox'}]),
+    sectionC: collectRows('officers-list', [{key:'name',name:'off_name_N'},{key:'title',name:'off_title_N'},{key:'email',name:'off_email_N'}]),
+    sectionD: collectRows('thirdparty-list', [{key:'name',name:'tp_name_N'},{key:'street',name:'tp_street_N'},{key:'county',name:'tp_county_N'},{key:'state',name:'tp_state_N'},{key:'role',name:'tp_role_N'},{key:'possession',name:'tp_poss_N',type:'radio'}]),
+    sectionE: collectRows('title-list', [{key:'propertyType',name:'title_type_N'},{key:'description',name:'title_desc_N'},{key:'registrationNo',name:'title_regno_N'},{key:'state',name:'title_state_N'}]),
+    sectionF: collectRows('accounts-list', [{key:'institution',name:'acc_inst_N'},{key:'accountNo',name:'acc_num_N'},{key:'types',namePrefix:'acc_type_N_',type:'checkbox'},{key:'balance',name:'acc_balance_N'}]),
+    sectionG: collectRows('equity-list', [{key:'issuer',name:'eq_issuer_N'},{key:'cusip',name:'eq_cusip_N'},{key:'shares',name:'eq_shares_N'},{key:'price',name:'eq_price_N'}]),
+    sectionH: collectRows('investments-list', [{key:'issuer',name:'inv_issuer_N'},{key:'types',namePrefix:'inv_type_N_',type:'checkbox'},{key:'description',name:'inv_desc_N'}]),
+    sectionI: collectRows('ip-list', [{key:'title',name:'ip_title_N'},{key:'registrationNo',name:'ip_regno_N'},{key:'types',namePrefix:'ip_type_N_',type:'checkbox'},{key:'description',name:'ip_desc_N'}]),
+    sectionJ: collectRows('licenses-list', [{key:'counterparty',name:'lic_party_N'},{key:'role',name:'lic_role_N',type:'radio'},{key:'description',name:'lic_desc_N'}]),
+    sectionK: collectRows('debt-list', [{key:'lender',name:'debt_lender_N'},{key:'address',name:'debt_addr_N'},{key:'originalAmount',name:'debt_orig_N'},{key:'currentAmount',name:'debt_curr_N'},{key:'maturityDate',name:'debt_mat_N'},{key:'secured',name:'debt_sec_N',type:'radio'},{key:'encumberedProperty',name:'debt_enc_N'}]),
+    sectionL: { govtAuthority: radio('miscL1'), govtAuthorityDetail: g('miscL1Detail'), tortClaims: radio('miscL2'), tortClaimsDetail: g('miscL2Detail'), letterOfCredit: radio('miscL3'), letterOfCreditDetail: g('miscL3Detail'), promissoryNote: radio('miscL4'), promissoryNoteDetail: g('miscL4Detail'), litigation: radio('miscL5'), litigationDetail: g('miscL5Detail'), marginStock: radio('miscL6'), marginStockDetail: g('miscL6Detail') },
+    execution: { grantorName: g('sigGrantorName'), date: g('sigDate'), signatoryName: g('sigName'), title: g('sigTitle'), email: g('sigEmail'), phone: g('sigPhone') }
+  };
+}
+
+// ── Summary modal ──
+function item(label, value) { return `<div class="summary-item"><span class="summary-key">${label}</span><span class="summary-val">${value||'—'}</span></div>`; }
+function sHtml(letter, title, inner) { return `<div class="summary-section"><div class="summary-section-title"><span class="summary-badge">${letter}</span>${title}</div>${inner}</div>`; }
+
+function showSummary() {
+  const data = collectFormData();
+  let html = '';
+  const A = data.sectionA;
+  html += sHtml('A','Grantor Name & Registration',[item('Legal Name',A.grantorName),item('Jurisdiction',A.jurisdictionOrg),item('Org Type',A.orgType),item('Org ID',A.orgIdNumber),item('EIN',A.ein),item('Other Tax Names',A.otherTaxNames)].join(''));
+
+  [['B','Locations',data.sectionB],['C','Officers',data.sectionC],['D','Third Parties',data.sectionD],['E','Title Property',data.sectionE],['F','Accounts',data.sectionF],['G','Equity Interests',data.sectionG],['H','Investments',data.sectionH],['I','Intellectual Property',data.sectionI],['J','Licenses',data.sectionJ],['K','Indebtedness',data.sectionK]].forEach(([l,t,rows]) => {
+    let inner = rows?.length ? rows.map((r,i) => `<div class="summary-row-block"><strong style="font-size:0.75rem;color:var(--slate);text-transform:uppercase;">Entry ${i+1}</strong><br>${Object.entries(r).map(([k,v])=>item(k,v)).join('')}</div>`).join('') : '<p style="color:var(--mist);font-size:0.85rem;">No entries.</p>';
+    html += sHtml(l,t,inner);
+  });
+
+  const L = data.sectionL;
+  html += sHtml('L','Miscellaneous',[
+    item('Govt Authority Debtor?', L.govtAuthority.toUpperCase()+(L.govtAuthority==='yes'&&L.govtAuthorityDetail?` — ${L.govtAuthorityDetail}`:'')),
+    item('Tort Claims?', L.tortClaims.toUpperCase()+(L.tortClaims==='yes'&&L.tortClaimsDetail?` — ${L.tortClaimsDetail}`:'')),
+    item('Letter of Credit?', L.letterOfCredit.toUpperCase()+(L.letterOfCredit==='yes'&&L.letterOfCreditDetail?` — ${L.letterOfCreditDetail}`:'')),
+    item('Promissory Note?', L.promissoryNote.toUpperCase()+(L.promissoryNote==='yes'&&L.promissoryNoteDetail?` — ${L.promissoryNoteDetail}`:'')),
+    item('Litigation?', L.litigation.toUpperCase()+(L.litigation==='yes'&&L.litigationDetail?` — ${L.litigationDetail}`:'')),
+    item('Margin Stock?', L.marginStock.toUpperCase()+(L.marginStock==='yes'&&L.marginStockDetail?` — ${L.marginStockDetail}`:'')),
+  ].join(''));
+
+  const E = data.execution;
+  html += sHtml('✦','Execution',[item('Grantor Entity',E.grantorName),item('Execution Date',E.date),item('Authorized Signatory',E.signatoryName),item('Title',E.title),item('Email',E.email),item('Phone',E.phone)].join(''));
+
+  document.getElementById('summaryBody').innerHTML = html;
+  document.getElementById('summaryModal').classList.add('open');
+  document.getElementById('submitStatus').textContent = '';
+  document.getElementById('confirmBtn').disabled = false;
+  document.getElementById('confirmBtn').innerHTML = '✓ Confirm &amp; Send to Google Sheets';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() { document.getElementById('summaryModal').classList.remove('open'); document.body.style.overflow = ''; }
+
+// ── Submit to Google Sheets via Apps Script ──
+async function confirmSubmit() {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    alert('⚠️ Please configure your Apps Script URL first.\n\nOpen this HTML file in a text editor and replace YOUR_APPS_SCRIPT_URL_HERE with your deployed Google Apps Script URL.');
+    return;
+  }
+
+  const btn = document.getElementById('confirmBtn');
+  const status = document.getElementById('submitStatus');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Sending…';
+  status.textContent = '';
+
+  const data = collectFormData();
+
+  try {
+    // Google Apps Script requires no-cors for cross-origin POSTs
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    // With no-cors, we can't read the response body — but if no error was thrown, the POST succeeded
+    closeModal();
+    showSuccess();
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = '✓ Confirm &amp; Send to Google Sheets';
+    status.textContent = '⚠️ Submission failed — please check your connection and try again.';
+    status.style.color = 'var(--red)';
+    console.error('Submission error:', err);
+  }
+}
+
+function showSuccess() {
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:20px;padding:40px;text-align:center;';
+  banner.innerHTML = `
+    <div style="font-size:3rem;">✅</div>
+    <div style="font-family:Playfair Display,serif;font-size:1.8rem;color:white;font-weight:700;">Submitted Successfully</div>
+    <div style="color:var(--silver);font-size:1rem;max-width:460px;line-height:1.8;">
+      Your Perfection Certificate has been sent to Google Sheets. The data will appear as new rows across the relevant tabs in your spreadsheet within moments.
+    </div>
+    <button onclick="location.reload()" style="margin-top:8px;padding:12px 32px;background:var(--gold);color:var(--navy);border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Source Sans 3',sans-serif;">Submit Another →</button>`;
+  document.body.appendChild(banner);
+}
+
+window.addEventListener('scroll', () => {
+  const ids = ['sec-a','sec-b','sec-c','sec-d','sec-e','sec-f','sec-g','sec-h','sec-i','sec-j','sec-k','sec-l','sec-sig'];
+  let cur = 0;
+  ids.forEach((id, i) => { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top < 120) cur = i; });
+  document.querySelectorAll('.nav-item').forEach((nav, i) => nav.classList.toggle('active', i === cur));
+});
+</script>
+</body>
+</html>
