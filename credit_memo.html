@@ -145,7 +145,7 @@
 <body>
 
 <script>
-  // ── CONFIGURATION ── paste your Apps Script URL here
+  // ── CONFIGURATION ──
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyhzcGzWTCytzk7VOEySd6xRBQ7XMCHhAZEaWF_7hU8B9jqPQGPs0Hozd3UT90pThU/exec";
 </script>
 
@@ -622,7 +622,7 @@ function closeModal() { document.getElementById('summaryModal').classList.remove
 
 // ── Submit to Google Sheets ──
 async function confirmSubmit() {
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbyhzcGzWTCytzk7VOEySd6xRBQ7XMCHhAZEaWF_7hU8B9jqPQGPs0Hozd3UT90pThU/exec") {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE") {
     alert("Please configure your Apps Script URL first.");
     return;
   }
