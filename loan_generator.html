@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Agreement Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0f1c2e;--ink:#1a2a3e;--slate:#2e4057;--steel:#4a6080;--mist:#8ea8c3;
+    --silver:#c8d8e8;--fog:#e8f0f8;--paper:#f5f8fc;--white:#ffffff;
+    --gold:#c9a84c;--gold-light:#e8c96a;--green:#1a7a4a;--green-light:#e8f5ee;
+    --accent:#1d6fa4;--accent-light:#e8f4fd;--border:#d0dce8;
+    --shadow:0 2px 12px rgba(15,28,46,0.10);--shadow-lg:0 8px 40px rgba(15,28,46,0.18);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Source Sans 3',sans-serif; background:var(--paper); color:var(--ink); font-size:15px; line-height:1.6; min-height:100vh; }
+
+  .header { background:var(--navy); padding:20px 32px; display:flex; align-items:center; gap:14px; box-shadow:var(--shadow-lg); }
+  .header-icon { width:38px; height:38px; background:var(--gold); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+  .header-text h1 { font-family:'Playfair Display',serif; font-size:1.2rem; color:white; font-weight:600; }
+  .header-text h1 span { color:var(--gold-light); }
+  .header-sub { font-size:0.75rem; color:var(--mist); text-transform:uppercase; letter-spacing:0.05em; }
+
+  .wrap { max-width:820px; margin:0 auto; padding:48px 32px 80px; }
+
+  .card { background:white; border:1px solid var(--border); border-radius:12px; padding:32px; margin-bottom:28px; box-shadow:var(--shadow); }
+  .card h2 { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--navy); margin-bottom:6px; }
+  .card-sub { font-size:0.88rem; color:var(--steel); margin-bottom:20px; line-height:1.5; }
+
+  .field { display:flex; flex-direction:column; gap:5px; margin-bottom:16px; }
+  .field-label { font-size:0.78rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--slate); }
+  input[type="text"] { font-family:inherit; font-size:0.9rem; color:var(--ink); background:var(--fog); border:1px solid var(--border); border-radius:7px; padding:9px 13px; outline:none; transition:all 0.18s; width:100%; }
+  input:focus { border-color:var(--accent); background:white; box-shadow:0 0 0 3px var(--accent-light); }
+
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 24px; border:none; border-radius:7px; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; transition:all 0.18s; }
+  .btn-navy { background:var(--navy); color:white; }
+  .btn-navy:hover { background:var(--slate); }
+  .btn-gold { background:var(--gold); color:var(--navy); }
+  .btn-gold:hover { background:var(--gold-light); }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+  .submissions-list { margin-top:20px; display:flex; flex-direction:column; gap:10px; }
+  .sub-item { display:grid; grid-template-columns:1fr auto; align-items:center; gap:16px; padding:16px 18px; background:var(--fog); border:1.5px solid var(--border); border-radius:9px; cursor:pointer; transition:all 0.18s; }
+  .sub-item:hover { border-color:var(--accent); background:var(--accent-light); }
+  .sub-item.selected { border-color:var(--accent); background:var(--accent-light); box-shadow:0 0 0 3px rgba(29,111,164,0.12); }
+  .sub-name { font-weight:600; color:var(--ink); font-size:0.95rem; }
+  .sub-meta { font-size:0.78rem; color:var(--steel); margin-top:2px; }
+  .sub-badge { font-size:0.72rem; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+  .badge-approved   { background:#d4edda; color:#155724; }
+  .badge-conditional{ background:#fff3cd; color:#856404; }
+  .badge-declined   { background:#f8d7da; color:#721c24; }
+  .badge-pending    { background:var(--fog); color:var(--steel); border:1px solid var(--border); }
+
+  .preview-box { background:var(--fog); border:1px solid var(--border); border-radius:9px; padding:20px 24px; margin-top:20px; }
+  .preview-box h3 { font-family:'Playfair Display',serif; font-size:0.95rem; color:var(--navy); margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+  .preview-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px 24px; }
+  .preview-item { display:flex; flex-direction:column; gap:2px; }
+  .preview-key { font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--steel); }
+  .preview-val { font-size:0.88rem; color:var(--ink); font-weight:500; }
+  .preview-val.highlight { color:var(--accent); }
+
+  .status-bar { display:flex; align-items:center; gap:10px; padding:14px 18px; border-radius:8px; font-size:0.88rem; font-weight:500; margin-top:16px; }
+  .status-info    { background:var(--accent-light); color:var(--accent); border:1px solid #b8d8f0; }
+  .status-success { background:var(--green-light); color:var(--green); border:1px solid #b8ddc8; }
+  .status-error   { background:#fdf0f0; color:#c0392b; border:1px solid #f5c6cb; }
+  .spinner { width:16px; height:16px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:spin 0.7s linear infinite; flex-shrink:0; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  .download-link { display:inline-flex; align-items:center; gap:8px; margin-top:16px; padding:12px 24px; background:var(--green); color:white; border-radius:8px; font-weight:600; font-size:0.9rem; text-decoration:none; transition:background 0.18s; }
+  .download-link:hover { background:#156b40; }
+
+  .empty-state { text-align:center; padding:40px 20px; color:var(--steel); }
+  .empty-icon { font-size:2.5rem; margin-bottom:12px; opacity:0.4; }
+  .divider { height:1px; background:var(--border); margin:20px 0; }
+  code { background:var(--fog); padding:1px 6px; border-radius:4px; font-size:0.85em; color:var(--slate); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">📄</div>
+  <div class="header-text">
+    <h1>Loan Agreement <span>Generator</span></h1>
+    <div class="header-sub">Powered by Credit Memo · Google Sheets</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- Step 1: Configuration -->
+  <div class="card">
+    <h2>Configuration</h2>
+    <p class="card-sub">Enter your Google Sheet ID (the string between <code>/d/</code> and <code>/edit</code> in your Sheet's URL), your institution's name, and your Apps Script deployment URL.</p>
+    <div class="field">
+      <label class="field-label">Google Sheet ID</label>
+      <input type="text" id="sheetId" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
+    </div>
+    <div class="field">
+      <label class="field-label">Lender Name</label>
+      <input type="text" id="lenderName" placeholder="e.g. First National Bank, N.A." />
+    </div>
+    <div class="field">
+      <label class="field-label">Apps Script Deployment URL</label>
+      <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/…/exec" />
+    </div>
+    <button class="btn btn-navy" onclick="loadSubmissions()">
+      ⬇&nbsp; Load Credit Memo Submissions
+    </button>
+    <div id="loadStatus"></div>
+  </div>
+
+  <!-- Step 2: Select submission -->
+  <div class="card" id="submissionsCard" style="display:none">
+    <h2>Select a Credit Memo Submission</h2>
+    <p class="card-sub">Click on a submission to preview the key terms and generate its loan agreement.</p>
+    <div id="submissionsList" class="submissions-list"></div>
+  </div>
+
+  <!-- Step 3: Preview & generate -->
+  <div class="card" id="generateCard" style="display:none">
+    <h2>Review &amp; Generate</h2>
+    <p class="card-sub">Confirm the key terms below, then click Generate to produce the populated and highlighted loan agreement.</p>
+    <div id="previewBox"></div>
+    <div class="divider"></div>
+    <button class="btn btn-gold" id="generateBtn" onclick="generateAgreement()">
+      ✦&nbsp; Generate Loan Agreement
+    </button>
+    <div id="generateStatus"></div>
+  </div>
+
+</div>
+
+<script>
+let selectedSubmission = null;
+let allGuarantors = [];
+
+// ── Load submissions ─────────────────────────────────────────
+async function loadSubmissions() {
+  const sheetId = document.getElementById('sheetId').value.trim();
+  if (!sheetId) { showStatus('loadStatus','error','Please enter your Google Sheet ID.'); return; }
+
+  showStatus('loadStatus','loading','Connecting to Google Sheets…');
+
+  try {
+    const [overviewData, guarData] = await Promise.all([
+      fetchSheet(sheetId, 'CM - Overview'),
+      fetchSheet(sheetId, 'CM - Guarantors'),
+    ]);
+
+    allGuarantors = overviewData ? parseRows(guarData) : [];
+    const rows = parseRows(overviewData);
+
+    if (!rows.length) {
+      showStatus('loadStatus','error','No submissions found. Make sure the CM - Overview sheet exists and your sheet is shared publicly (Viewer).');
+      return;
+    }
+
+    showStatus('loadStatus','success', `Loaded ${rows.length} submission${rows.length !== 1 ? 's' : ''}.`);
+    renderSubmissions(rows);
+
+    // Save config
+    localStorage.setItem('lag_sheetId',    sheetId);
+    localStorage.setItem('lag_lenderName', document.getElementById('lenderName').value.trim());
+    localStorage.setItem('lag_scriptUrl',  document.getElementById('scriptUrl').value.trim());
+
+  } catch(err) {
+    showStatus('loadStatus','error','Failed to load: ' + err.message + '. Make sure your sheet is shared as "Anyone with the link can view".');
+  }
+}
+
+async function fetchSheet(sheetId, sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  const res  = await fetch(url);
+  const text = await res.text();
+  const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+  if (!match) throw new Error(`Could not read sheet "${sheetName}"`);
+  return JSON.parse(match[1]);
+}
+
+function parseRows(json) {
+  if (!json || !json.table) return [];
+  const cols = json.table.cols.map(c => c.label);
+  return (json.table.rows || []).map(row => {
+    const obj = {};
+    cols.forEach((col, i) => { obj[col] = row.c[i]?.v ?? ''; });
+    return obj;
+  });
+}
+
+// ── Render submissions ───────────────────────────────────────
+function renderSubmissions(rows) {
+  const list = document.getElementById('submissionsList');
+  list.innerHTML = '';
+
+  rows.forEach((row, idx) => {
+    const decision = (row['Credit Decision'] || '').toLowerCase();
+    const loanTypes = [];
+    if (row['Has Term Loan?'] === 'Yes') loanTypes.push('Term Loan');
+    if (row['Has Revolver?']  === 'Yes') loanTypes.push('Revolver');
+
+    let badgeClass = 'badge-pending', badgeText = 'Pending';
+    if (decision.includes('approved') && !decision.includes('conditional')) {
+      badgeClass = 'badge-approved'; badgeText = 'Approved';
+    } else if (decision.includes('conditional')) {
+      badgeClass = 'badge-conditional'; badgeText = 'Conditional';
+    } else if (decision.includes('declined')) {
+      badgeClass = 'badge-declined'; badgeText = 'Declined';
+    }
+
+    const item = document.createElement('div');
+    item.className = 'sub-item';
+    item.dataset.idx = idx;
+    item.innerHTML = `
+      <div>
+        <div class="sub-name">${esc(row['Borrower Name'] || '(Unnamed)')}</div>
+        <div class="sub-meta">
+          ${esc(row['Submitted At'] || '')}
+          &nbsp;·&nbsp; ${loanTypes.join(' + ') || 'No loan type'}
+          &nbsp;·&nbsp; RM: ${esc(row['Relationship Manager'] || '—')}
+        </div>
+      </div>
+      <span class="sub-badge ${badgeClass}">${badgeText}</span>
+    `;
+    item.onclick = () => selectSubmission(rows, idx);
+    list.appendChild(item);
+  });
+
+  document.getElementById('submissionsCard').style.display = 'block';
+  document.getElementById('submissionsCard').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// ── Select submission ────────────────────────────────────────
+function selectSubmission(rows, idx) {
+  document.querySelectorAll('.sub-item').forEach(el => el.classList.remove('selected'));
+  document.querySelector(`.sub-item[data-idx="${idx}"]`).classList.add('selected');
+  selectedSubmission = rows[idx];
+
+  const row = selectedSubmission;
+  const submissionId = row['Submission ID'];
+  const myGuarantors = allGuarantors.filter(g => g['Submission ID'] === submissionId && g['Guarantor Name']);
+  const guarNames = myGuarantors.map(g => g['Guarantor Name']).join(', ') || row['Guarantor Type'] || '—';
+
+  const docTitle = (row['Has Term Loan?'] === 'Yes' && row['Has Revolver?'] !== 'Yes')
+    ? 'Loan Agreement' : 'Credit Agreement';
+
+  const loanLines = [];
+  if (row['Has Term Loan?'] === 'Yes') loanLines.push(`Term Loan ${row['Term Loan Amount'] || ''}`);
+  if (row['Has Revolver?']  === 'Yes') loanLines.push(`Revolver ${row['Revolver Commitment'] || ''}`);
+
+  const rateStr = row['Rate Type'] === 'Fixed'
+    ? `Fixed ${row['Fixed Rate (%)'] || ''}%`
+    : `${row['Reference Rate'] || ''} + ${row['Floating Margin (%)'] || ''}%`;
+
+  document.getElementById('previewBox').innerHTML = `
+    <div class="preview-box">
+      <h3>📄 ${esc(docTitle)} — ${esc(row['Borrower Name'] || '—')}</h3>
+      <div class="preview-grid">
+        <div class="preview-item">
+          <span class="preview-key">Document Type</span>
+          <span class="preview-val highlight">${esc(docTitle)}</span>
+        </div>
+        <div class="preview-item">
+          <span class="preview-key">Lender</span>
+          <span class="preview-val">${esc(document.getElementById('lenderName').value || '—')}</span>
+        </div>
+        <div class="preview-item">
+          <span class="preview-key">Borrower</span>
+          <span class="preview-val">${esc(row['Borrower Name'] || '—')}</span>
+        </div>
+        <div class="preview-item">
+          <span class="preview-key">Entity Type</span>
+          <span class="preview-val">${esc(row['Entity Type'] || '—')}</span>
+        </div>
+        <div class="preview-item">
+          <span class="preview-key">Loan Facilities</span>
+          <span class="preview-val">${esc(loanLines.join(' · ') || '—')}</span>
+        </div>
+        <div class="preview-item">
+          <span class="preview-key">Interest Rate</span>
+          <span class="preview-val">${esc(rateStr)}</span>
+        </div>
+        <div class="preview-item">
+          <span class="preview-key">Facility Fee</span>
+          <span class="preview-val">${esc(row['Facility Fee'] || '—')}</span>
+        </div>
+        <div class="preview-item">
+          <span class="preview-key">Guarantors</span>
+          <span class="preview-val">${esc(guarNames)}</span>
+        </div>
+        <div class="preview-item" style="grid-column:1/-1">
+          <span class="preview-key">Borrower Address</span>
+          <span class="preview-val">${esc(row['Borrower Address'] || '—')}</span>
+        </div>
+        <div class="preview-item" style="grid-column:1/-1">
+          <span class="preview-key">Credit Decision</span>
+          <span class="preview-val">${esc(row['Credit Decision'] || '—')}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('generateCard').style.display = 'block';
+  document.getElementById('generateStatus').innerHTML = '';
+  document.getElementById('generateCard').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// ── Generate agreement ───────────────────────────────────────
+async function generateAgreement() {
+  if (!selectedSubmission) return;
+
+  const scriptUrl = document.getElementById('scriptUrl').value.trim();
+  if (!scriptUrl) { showStatus('generateStatus','error','Please enter your Apps Script deployment URL.'); return; }
+
+  const row          = selectedSubmission;
+  const submissionId = row['Submission ID'];
+  const myGuarantors = allGuarantors
+    .filter(g => g['Submission ID'] === submissionId && g['Guarantor Name'])
+    .map(g => ({ name: g['Guarantor Name'], relationship: g['Relationship to Borrower'] || '' }));
+
+  const data = {
+    lenderName: document.getElementById('lenderName').value.trim() || '[LENDER]',
+    borrower: {
+      name:       row['Borrower Name']    || '',
+      entityType: row['Entity Type']      || 'Limited Liability Company',
+      address:    row['Borrower Address'] || '',
+    },
+    loanDetails: {
+      hasTermLoan:        row['Has Term Loan?']       === 'Yes',
+      termLoanAmount:     row['Term Loan Amount']     || '',
+      termLoanMaturity:   row['Term Loan Maturity']   || '',
+      hasRevolver:        row['Has Revolver?']        === 'Yes',
+      revolverCommitment: row['Revolver Commitment']  || '',
+      revolverMaturity:   row['Revolver Maturity']    || '',
+      rateType:           row['Rate Type']            || '',
+      fixedRate:          row['Fixed Rate (%)']       || '',
+      referenceRate:      row['Reference Rate']       || '',
+      floatingMargin:     row['Floating Margin (%)']  || '',
+      facilityFee:        row['Facility Fee']         || '',
+      commitmentFee:      row['Commitment Fee (%)']   || '',
+    },
+    guarantors: {
+      type:  row['Guarantor Type'] || '',
+      named: myGuarantors,
+    },
+    collateral: {
+      type:  row['Collateral Type']  || '',
+      notes: row['Collateral Notes'] || '',
+    },
+  };
+
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  showStatus('generateStatus','loading','Generating agreement — this may take 20–30 seconds…');
+
+  try {
+    const response = await fetch(scriptUrl, {
+      method:  'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body:    JSON.stringify({ formType: 'generateAgreement', data }),
+    });
+
+    const result = await response.json();
+
+    if (result.status === 'success') {
+      document.getElementById('generateStatus').innerHTML = `
+        <div class="status-bar status-success">✅ Agreement generated successfully!</div>
+        <a class="download-link" href="${result.fileUrl}" target="_blank">
+          ⬇&nbsp; Download ${esc(result.fileName || 'Loan Agreement.docx')}
+        </a>
+      `;
+    } else {
+      showStatus('generateStatus','error','Generation failed: ' + (result.message || 'Unknown error'));
+    }
+  } catch(err) {
+    showStatus('generateStatus','error','Request failed: ' + err.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function showStatus(id, type, msg) {
+  const icons   = { loading:'<div class="spinner"></div>', success:'✅', error:'❌', info:'ℹ️' };
+  const classes = { loading:'status-info', success:'status-success', error:'status-error', info:'status-info' };
+  document.getElementById(id).innerHTML =
+    `<div class="status-bar ${classes[type]}">${icons[type]} ${msg}</div>`;
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Restore saved values on load
+window.addEventListener('load', () => {
+  ['sheetId','lenderName','scriptUrl'].forEach(id => {
+    const val = localStorage.getItem('lag_' + id);
+    if (val) document.getElementById(id).value = val;
+  });
+});
+</script>
+</body>
+</html>
