@@ -74,6 +74,11 @@
   .empty-icon { font-size:2.5rem; margin-bottom:12px; opacity:0.4; }
   .divider { height:1px; background:var(--border); margin:20px 0; }
   code { background:var(--fog); padding:1px 6px; border-radius:4px; font-size:0.85em; color:var(--slate); }
+  .notice-banner { display:flex; align-items:flex-start; gap:14px; background:#fffbea; border:1.5px solid #f0d060; border-radius:10px; padding:16px 20px; margin-bottom:28px; }
+  .notice-banner .notice-icon { font-size:1.3rem; flex-shrink:0; margin-top:1px; }
+  .notice-banner .notice-body { font-size:0.88rem; color:#6b5500; line-height:1.6; }
+  .notice-banner .notice-body strong { color:#4a3a00; display:block; margin-bottom:3px; font-size:0.92rem; }
+  .notice-banner .notice-body a { color:#1d6fa4; font-weight:600; }
 </style>
 </head>
 <body>
@@ -87,6 +92,17 @@
 </div>
 
 <div class="wrap">
+
+  <!-- Google sign-in notice -->
+  <div class="notice-banner">
+    <div class="notice-icon">🔑</div>
+    <div class="notice-body">
+      <strong>A Google account is required to generate loan agreements.</strong>
+      Before using this tool, please make sure you are signed into a Google account in this browser.
+      You can sign in at <a href="https://accounts.google.com" target="_blank">accounts.google.com</a>,
+      then return to this page. Loading submissions does not require a Google account.
+    </div>
+  </div>
 
   <!-- Step 1: Get Started -->
   <div class="card">
@@ -347,6 +363,14 @@ async function generateAgreement() {
       headers: { 'Content-Type': 'text/plain' },
       body:    JSON.stringify({ formType: 'generateAgreement', data }),
     });
+
+    // Detect Google auth redirect (returns HTML instead of JSON)
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      showStatus('generateStatus', 'error',
+        'Google sign-in required. Please <a href="https://accounts.google.com" target="_blank" style="color:inherit;font-weight:700;text-decoration:underline;">sign into a Google account</a>, then return to this page and try again.');
+      return;
+    }
 
     const result = await response.json();
 
