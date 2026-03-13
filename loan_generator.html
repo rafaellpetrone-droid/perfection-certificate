@@ -88,21 +88,13 @@
 
 <div class="wrap">
 
-  <!-- Step 1: Configuration -->
+  <!-- Step 1: Get Started -->
   <div class="card">
-    <h2>Configuration</h2>
-    <p class="card-sub">Enter your Google Sheet ID (the string between <code>/d/</code> and <code>/edit</code> in your Sheet's URL), your institution's name, and your Apps Script deployment URL.</p>
-    <div class="field">
-      <label class="field-label">Google Sheet ID</label>
-      <input type="text" id="sheetId" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
-    </div>
+    <h2>Get Started</h2>
+    <p class="card-sub">Enter your institution's name, then load the available Credit Memo submissions.</p>
     <div class="field">
       <label class="field-label">Lender Name</label>
       <input type="text" id="lenderName" placeholder="e.g. First National Bank, N.A." />
-    </div>
-    <div class="field">
-      <label class="field-label">Apps Script Deployment URL</label>
-      <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/…/exec" />
     </div>
     <button class="btn btn-navy" onclick="loadSubmissions()">
       ⬇&nbsp; Load Credit Memo Submissions
@@ -135,17 +127,18 @@
 let selectedSubmission = null;
 let allGuarantors = [];
 
+// ── Hardcoded configuration ───────────────────────────────────
+const SHEET_ID   = '1l0AfndHO7AdfN4LfzywGAcx0EjkHswL7LJI5pa6Nh6g';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvShmDcxCduIwNrajq251lOw0KTZVTl7S8Xfy6cYp9M9Wb4gKeQcjLyl02ps5u9_YW/exec';
+
 // ── Load submissions ─────────────────────────────────────────
 async function loadSubmissions() {
-  const sheetId = document.getElementById('sheetId').value.trim();
-  if (!sheetId) { showStatus('loadStatus','error','Please enter your Google Sheet ID.'); return; }
-
   showStatus('loadStatus','loading','Connecting to Google Sheets…');
 
   try {
     const [overviewData, guarData] = await Promise.all([
-      fetchSheet(sheetId, 'CM - Overview'),
-      fetchSheet(sheetId, 'CM - Guarantors'),
+      fetchSheet(SHEET_ID, 'CM - Overview'),
+      fetchSheet(SHEET_ID, 'CM - Guarantors'),
     ]);
 
     allGuarantors = overviewData ? parseRows(guarData) : [];
@@ -159,10 +152,8 @@ async function loadSubmissions() {
     showStatus('loadStatus','success', `Loaded ${rows.length} submission${rows.length !== 1 ? 's' : ''}.`);
     renderSubmissions(rows);
 
-    // Save config
-    localStorage.setItem('lag_sheetId',    sheetId);
+    // Save lender name for convenience
     localStorage.setItem('lag_lenderName', document.getElementById('lenderName').value.trim());
-    localStorage.setItem('lag_scriptUrl',  document.getElementById('scriptUrl').value.trim());
 
   } catch(err) {
     showStatus('loadStatus','error','Failed to load: ' + err.message + '. Make sure your sheet is shared as "Anyone with the link can view".');
@@ -309,9 +300,6 @@ function selectSubmission(rows, idx) {
 async function generateAgreement() {
   if (!selectedSubmission) return;
 
-  const scriptUrl = document.getElementById('scriptUrl').value.trim();
-  if (!scriptUrl) { showStatus('generateStatus','error','Please enter your Apps Script deployment URL.'); return; }
-
   const row          = selectedSubmission;
   const submissionId = row['Submission ID'];
   const myGuarantors = allGuarantors
@@ -354,7 +342,7 @@ async function generateAgreement() {
   showStatus('generateStatus','loading','Generating agreement — this may take 20–30 seconds…');
 
   try {
-    const response = await fetch(scriptUrl, {
+    const response = await fetch(SCRIPT_URL, {
       method:  'POST',
       headers: { 'Content-Type': 'text/plain' },
       body:    JSON.stringify({ formType: 'generateAgreement', data }),
@@ -391,12 +379,10 @@ function esc(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Restore saved values on load
+// Restore saved lender name on load
 window.addEventListener('load', () => {
-  ['sheetId','lenderName','scriptUrl'].forEach(id => {
-    const val = localStorage.getItem('lag_' + id);
-    if (val) document.getElementById(id).value = val;
-  });
+  const saved = localStorage.getItem('lag_lenderName');
+  if (saved) document.getElementById('lenderName').value = saved;
 });
 </script>
 </body>
